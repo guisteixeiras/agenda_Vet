@@ -1,6 +1,8 @@
 import { TipoAtendimento } from './domain/TipoAtendimento';
 import { ClinicaFacade } from './facade/ClinicaFacade';
 import { ZapLegacySDK } from './libs/zap-legacy-sdk';
+import { EmailFakeNotificador } from './notifications/EmailFakeNotificador';
+import { NotificadorComposto } from './notifications/NotificadorComposto';
 import { ZapAdapter } from './notifications/ZapAdapter';
 import { CalculadoraDePreco } from './pricing/CalculadoraDePreco';
 import { PrecoBanhoTosa, PrecoCirurgia, PrecoConsulta, PrecoVacina } from './pricing/regras';
@@ -14,7 +16,10 @@ const calculadora = new CalculadoraDePreco([
   new PrecoCirurgia(),
   new PrecoBanhoTosa(),
 ]);
-const notificador = new ZapAdapter(new ZapLegacySDK(process.env.ZAP_TOKEN ?? 'TOKEN-123'));
+const notificador = new NotificadorComposto([
+  new ZapAdapter(new ZapLegacySDK(process.env.ZAP_TOKEN ?? 'TOKEN-123')),
+  new EmailFakeNotificador(),
+]);
 const clinica = new ClinicaFacade(repositorio, calculadora, notificador);
 
 clinica.agendar({
