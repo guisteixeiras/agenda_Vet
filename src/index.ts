@@ -3,7 +3,7 @@ import { ClinicaFacade } from './facade/ClinicaFacade';
 import { ZapLegacySDK } from './libs/zap-legacy-sdk';
 import { ZapAdapter } from './notifications/ZapAdapter';
 import { CalculadoraDePreco } from './pricing/CalculadoraDePreco';
-import { PrecoCirurgia, PrecoConsulta, PrecoVacina } from './pricing/regras';
+import { PrecoBanhoTosa, PrecoCirurgia, PrecoConsulta, PrecoVacina } from './pricing/regras';
 import { RepositorioEmMemoria } from './repositories/RepositorioEmMemoria';
 
 // Composição: o único lugar que conhece as classes concretas.
@@ -12,6 +12,7 @@ const calculadora = new CalculadoraDePreco([
   new PrecoConsulta(),
   new PrecoVacina(),
   new PrecoCirurgia(),
+  new PrecoBanhoTosa(),
 ]);
 const notificador = new ZapAdapter(new ZapLegacySDK(process.env.ZAP_TOKEN ?? 'TOKEN-123'));
 const clinica = new ClinicaFacade(repositorio, calculadora, notificador);
@@ -26,7 +27,7 @@ clinica.agendar({
 });
 clinica.agendar({
   tutor: 'Carla', telefone: '31977776666', pet: 'Pipoca',
-  tipo: TipoAtendimento.VACINA, dataHora: new Date('2027-01-12T16:00:00'), planoPetMais: false,
+  tipo: TipoAtendimento.BANHO_TOSA, dataHora: new Date('2027-01-12T16:00:00'), planoPetMais: false,
 });
 
 console.table(clinica.listar().map(({ id, tutor, pet, tipo, valor, status }) => ({ id, tutor, pet, tipo, valor, status })));
