@@ -6,7 +6,7 @@ Refatoração do sistema legado da clínica veterinária AgendaVet aplicando Cle
 ## Integrantes
 
 - João Vitor Pieroti Pinheiro
-- _(dupla)_
+- Guilherme Teixeira Soares Souza
 
 ## Como rodar
 
