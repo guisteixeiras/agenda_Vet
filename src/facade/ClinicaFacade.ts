@@ -1,5 +1,7 @@
 import { Consulta, NovaConsulta } from '../domain/Consulta';
+import { ConsultaJaCanceladaError, ConsultaNaoEncontradaError, DadosInvalidosError } from '../domain/erros';
 import { CalculadoraDePreco } from '../pricing/CalculadoraDePreco';
+import { CalculadoraDeTaxaCancelamento } from '../pricing/CalculadoraDeTaxaCancelamento';
 import { IRepositorioConsultas } from '../repositories/IRepositorioConsultas';
 import { INotificador } from '../notifications/INotificador';
 
@@ -9,6 +11,8 @@ export class ClinicaFacade {
     private readonly repositorio: IRepositorioConsultas,
     private readonly calculadora: CalculadoraDePreco,
     private readonly notificador: INotificador,
+    // Opcional só para manter o construtor de 3 argumentos usado nos testes; a montagem injeta explicitamente.
+    private readonly calculadoraDeTaxa: CalculadoraDeTaxaCancelamento = new CalculadoraDeTaxaCancelamento(),
   ) {}
 
   agendar(dados: NovaConsulta): Consulta {
@@ -19,11 +23,14 @@ export class ClinicaFacade {
     return consulta;
   }
 
-  cancelar(id: number): Consulta {
+  cancelar(id: number, agora: Date = new Date()): Consulta {
     const consulta = this.repositorio.buscarPorId(id);
-    if (!consulta) throw new Error(`Consulta ${id} não encontrada`);
-    if (consulta.status === 'CANCELADA') throw new Error(`Consulta ${id} já está cancelada`);
-    const cancelada: Consulta = { ...consulta, status: 'CANCELADA' };
+    if (!consulta) throw new ConsultaNaoEncontradaError(id);
+    if (consulta.status === 'CANCELADA') throw new ConsultaJaCanceladaError(id);
+    const taxaCancelamento = this.calculadoraDeTaxa.calcular(
+      consulta.valor, consulta.dataHora, agora, consulta.planoPetMais,
+    );
+    const cancelada: Consulta = { ...consulta, status: 'CANCELADA', taxaCancelamento };
     this.repositorio.atualizar(cancelada);
     return cancelada;
   }
@@ -40,7 +47,7 @@ export class ClinicaFacade {
     if (!dados.tipo) faltando.push('tipo');
     if (!(dados.dataHora instanceof Date) || isNaN(dados.dataHora.getTime())) faltando.push('dataHora');
     if (faltando.length > 0) {
-      throw new Error(`Campos obrigatórios ausentes ou inválidos: ${faltando.join(', ')}`);
+      throw new DadosInvalidosError(`Campos obrigatórios ausentes ou inválidos: ${faltando.join(', ')}`);
     }
   }
 

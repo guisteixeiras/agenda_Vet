@@ -1,0 +1,11 @@
+/** @type {import('jest').Config} */
+module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  roots: ['<rootDir>/src', '<rootDir>/tests'],
+  collectCoverageFrom: ['src/**/*.ts', '!src/index.ts', '!src/legado/**', '!src/libs/**'],
+  coverageThreshold: {
+    './src/pricing/': { branches: 80 },
+    './src/facade/': { branches: 80 },
+  },
+};
