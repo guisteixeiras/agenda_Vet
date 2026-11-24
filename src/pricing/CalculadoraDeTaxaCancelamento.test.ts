@@ -33,4 +33,12 @@ describe('CalculadoraDeTaxaCancelamento', () => {
   it('cobra 100% quando a consulta já começou (antecedência negativa)', () => {
     expect(calc.calcular(120, inicio, antes(-1), false)).toBe(120);
   });
+
+  it('reduz a taxa pela metade para o Plano Pet+ (combinação de regras)', () => {
+    expect(calc.calcular(120, inicio, antes(1), true)).toBe(30);
+  });
+
+  it('Plano Pet+ sem taxa continua sem taxa', () => {
+    expect(calc.calcular(120, inicio, antes(48), true)).toBe(0);
+  });
 });
