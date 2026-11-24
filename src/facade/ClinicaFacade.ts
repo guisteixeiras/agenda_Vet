@@ -11,7 +11,8 @@ export class ClinicaFacade {
     private readonly repositorio: IRepositorioConsultas,
     private readonly calculadora: CalculadoraDePreco,
     private readonly notificador: INotificador,
-    private readonly calculadoraDeTaxa = new CalculadoraDeTaxaCancelamento(),
+    // Opcional só para manter o construtor de 3 argumentos usado nos testes; a montagem injeta explicitamente.
+    private readonly calculadoraDeTaxa: CalculadoraDeTaxaCancelamento = new CalculadoraDeTaxaCancelamento(),
   ) {}
 
   agendar(dados: NovaConsulta): Consulta {

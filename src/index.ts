@@ -1,38 +1,22 @@
+import { criarApp } from './app';
 import { TipoAtendimento } from './domain/TipoAtendimento';
-import { ClinicaFacade } from './facade/ClinicaFacade';
-import { ZapLegacySDK } from './libs/zap-legacy-sdk';
-import { EmailFakeNotificador } from './notifications/EmailFakeNotificador';
-import { NotificadorComposto } from './notifications/NotificadorComposto';
-import { ZapAdapter } from './notifications/ZapAdapter';
-import { CalculadoraDePreco } from './pricing/CalculadoraDePreco';
-import { PrecoBanhoTosa, PrecoCirurgia, PrecoConsulta, PrecoVacina } from './pricing/regras';
-import { RepositorioEmMemoria } from './repositories/RepositorioEmMemoria';
+import { montarFacade } from './montagem';
 
-// Composição: o único lugar que conhece as classes concretas.
-const repositorio = new RepositorioEmMemoria();
-const calculadora = new CalculadoraDePreco([
-  new PrecoConsulta(),
-  new PrecoVacina(),
-  new PrecoCirurgia(),
-  new PrecoBanhoTosa(),
-]);
-const notificador = new NotificadorComposto([
-  new ZapAdapter(new ZapLegacySDK(process.env.ZAP_TOKEN ?? 'TOKEN-123')),
-  new EmailFakeNotificador(),
-]);
-const clinica = new ClinicaFacade(repositorio, calculadora, notificador);
+const PORTA = Number(process.env.PORT ?? 3000);
+const facade = montarFacade();
 
-clinica.agendar({
+// Consultas de demonstração (uma com Plano Pet+ e uma de BANHO_TOSA).
+facade.agendar({
   tutor: 'Ana', telefone: '31999990000', pet: 'Thor',
   tipo: TipoAtendimento.CONSULTA, dataHora: new Date('2027-01-10T14:00:00'), planoPetMais: false,
 });
-clinica.agendar({
+facade.agendar({
   tutor: 'Bruno', telefone: '31988887777', pet: 'Mel',
   tipo: TipoAtendimento.CIRURGIA, dataHora: new Date('2027-01-11T09:30:00'), planoPetMais: true,
 });
-clinica.agendar({
+facade.agendar({
   tutor: 'Carla', telefone: '31977776666', pet: 'Pipoca',
   tipo: TipoAtendimento.BANHO_TOSA, dataHora: new Date('2027-01-12T16:00:00'), planoPetMais: false,
 });
 
-console.table(clinica.listar().map(({ id, tutor, pet, tipo, valor, status }) => ({ id, tutor, pet, tipo, valor, status })));
+criarApp(facade).listen(PORTA, () => console.log(`AgendaVet em http://localhost:${PORTA}`));
