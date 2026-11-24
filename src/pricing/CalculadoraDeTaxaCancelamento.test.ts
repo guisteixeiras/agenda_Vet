@@ -13,4 +13,8 @@ describe('CalculadoraDeTaxaCancelamento', () => {
   it('não cobra taxa com 24h exatas (valor-limite)', () => {
     expect(calc.calcular(120, inicio, antes(24), false)).toBe(0);
   });
+
+  it('cobra 30% com 23h59min (valor-limite)', () => {
+    expect(calc.calcular(120, inicio, antes(23, 59), false)).toBe(36);
+  });
 });
