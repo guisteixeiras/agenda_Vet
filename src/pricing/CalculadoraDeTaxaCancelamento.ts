@@ -5,6 +5,7 @@ export class CalculadoraDeTaxaCancelamento {
     const horas = (inicio.getTime() - momentoCancelamento.getTime()) / UMA_HORA_MS;
     if (horas >= 24) return 0;
     if (horas >= 2) return valor * 0.3;
-    return valor * 0.5;
+    if (horas > 0) return valor * 0.5;
+    return valor;
   }
 }
