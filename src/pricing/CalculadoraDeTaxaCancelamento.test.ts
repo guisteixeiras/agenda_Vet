@@ -25,4 +25,12 @@ describe('CalculadoraDeTaxaCancelamento', () => {
   it('cobra 50% com 1h59min (valor-limite)', () => {
     expect(calc.calcular(120, inicio, antes(1, 59), false)).toBe(60);
   });
+
+  it('cobra 100% quando cancela na hora (valor-limite)', () => {
+    expect(calc.calcular(120, inicio, antes(0), false)).toBe(120);
+  });
+
+  it('cobra 100% quando a consulta já começou (antecedência negativa)', () => {
+    expect(calc.calcular(120, inicio, antes(-1), false)).toBe(120);
+  });
 });
